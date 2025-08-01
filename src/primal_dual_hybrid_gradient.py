@@ -3,7 +3,7 @@ from primal_dual_hybrid_gradient_step import adaptive_one_step_pdhg, fixed_one_s
 from helpers import spectral_norm_estimate_torch, KKT_error, compute_residuals_and_duality_gap, check_termination
 from enhancements import primal_weight_update
 
-def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_iter=100_000, tol=1e-4, verbose=True, restart_period=40, precondition=False, primal_update=False, adaptive=False):
+def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_iter=100_000, tol=1e-4, verbose=True, restart_period=40, precondition=False, primal_update=False, adaptive=False, data_precond=None):
     
     is_neg_inf = torch.isinf(l) & (l < 0)
     is_pos_inf = torch.isinf(u) & (u > 0)
@@ -114,8 +114,13 @@ def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_iter=100_000, tol=1e-4, ve
         j += 1 # Add one kkt pass
       
         # Compute primal and dual residuals, and duality gap
-        primal_residual, dual_residual, duality_gap, prim_obj, adjusted_dual = compute_residuals_and_duality_gap(x, y, c, q, K, m_ineq, is_neg_inf, is_pos_inf, l_dual, u_dual)
-
+        if precondition:
+            D_col, D_row, K_unscaled, c_unscaled, q_unscaled, l_unscaled, u_unscaled = data_precond
+            l_unscaled[is_neg_inf] = 0
+            u_unscaled[is_pos_inf] = 0
+            primal_residual, dual_residual, duality_gap, prim_obj, adjusted_dual = compute_residuals_and_duality_gap(D_col * x, D_row * y, c_unscaled, q_unscaled, K_unscaled, m_ineq, is_neg_inf, is_pos_inf, l_unscaled, u_unscaled)
+        else:
+            primal_residual, dual_residual, duality_gap, prim_obj, adjusted_dual = compute_residuals_and_duality_gap(x, y, c, q, K, m_ineq, is_neg_inf, is_pos_inf, l_dual, u_dual)
         # Add one kkt pass
         j += 1
 
