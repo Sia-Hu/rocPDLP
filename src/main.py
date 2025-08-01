@@ -3,7 +3,7 @@ import torch
 import os
 from util import mps_to_standard_form, Timer
 from enhancements import ruiz_precondition
-from primal_dual_hybrif_gradient import pdlp_algorithm
+from primal_dual_hybrid_gradient import pdlp_algorithm
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Run LP solver with configuration options.')
