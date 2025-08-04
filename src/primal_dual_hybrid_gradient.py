@@ -17,7 +17,7 @@ def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_iter=100_000, tol=1e-4, ve
     c_norm = torch.linalg.norm(c, 2)
 
     eta = 0.9 / spectral_norm_estimate_torch(K, num_iters=100)
-    omega = c_norm / q_norm if q_norm > 1e-6 and c_norm > 1e-6 else 1.0
+    omega = c_norm / q_norm if q_norm > 1e-6 and c_norm > 1e-6 else torch.tensor(1.0)
 
     theta = 1.0
 
@@ -55,7 +55,7 @@ def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_iter=100_000, tol=1e-4, ve
             k += 1
             x_previous = x.clone() # For checking necessary criteria
             y_previous = y.clone()
-
+            
             if adaptive:
                 # Adaptive step of pdhg
                 x, y, eta, eta_hat, j = adaptive_one_step_pdhg(x, y, c, q, K, l, u, m_ineq, eta, omega, theta, k, j)

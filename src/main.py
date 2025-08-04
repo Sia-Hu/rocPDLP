@@ -80,7 +80,7 @@ if __name__ == '__main__':
                 if precondition:
                     K, c, q, l, u, dt_precond = ruiz_precondition(c, K, q, l, u, device = device)
                 
-                x, prim_obj, k, n, j = pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_iter=100_000, tol=tol, verbose=True, restart_period=40, precondition=precondition,primal_update=primal_weight_update, adaptive=adaptive_stepsize, data_precond=dt_precond)
+                x, prim_obj, k, n, j = pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_iter=100_000, tol=tol, verbose=verbose, restart_period=40, precondition=precondition,primal_update=primal_weight_update, adaptive=adaptive_stepsize, data_precond=dt_precond)
                 
                 print(f"Objective value: {prim_obj:.4f}")
                 
