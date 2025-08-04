@@ -23,7 +23,7 @@ python -u /path/to/main.py \
 
 | Argument                 | Description                                                                  |
 | ------------------------ | ---------------------------------------------------------------------------- |
-| `--device`               | `'cpu'`, `'gpu'`, or `'auto'`. Uses GPU if available and `auto` is selected. |
+| `--device`               | `'cpu'`, `'gpu'`, or `'auto'`. Uses GPU if available as default.             |
 | `--instance_path`        | Path to folder with `.mps` files.                                            |
 | `--tolerance`            | Convergence tolerance (default: `1e-2`).                                     |
 | `--output_path`          | Folder to save outputs and Excel results.                                    |
