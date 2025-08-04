@@ -8,7 +8,7 @@ This repository contains experimental code for solving linear programming in MPS
 - openpyxl (for saving Excel files)
 - Your LP instances in `.mps` format
 
-- ## How to run
+## How to run
 ```bash
 python -u /path/to/main.py \
   --device gpu \
@@ -19,3 +19,16 @@ python -u /path/to/main.py \
   --primal_weight_update \
   --adaptive_stepsize
 ```
+## Argument Reference
+
+| Argument                 | Description                                                                  |
+| ------------------------ | ---------------------------------------------------------------------------- |
+| `--device`               | `'cpu'`, `'gpu'`, or `'auto'`. Uses GPU if available and `auto` is selected. |
+| `--instance_path`        | Path to folder with `.mps` files.                                            |
+| `--tolerance`            | Convergence tolerance (default: `1e-2`).                                     |
+| `--output_path`          | Folder to save outputs and Excel results.                                    |
+| `--precondition`         | Enable Ruiz preconditioning (optional).                                      |
+| `--primal_weight_update` | Enable primal weight updates (optional).                                     |
+| `--adaptive_stepsize`    | Enable adaptive step sizes (optional).                                       |
+| `--verbose`              | Enable verbose logging (optional).                                           |
+| `--support_sparse`       | Use sparse matrices if supported (optional).                                 |
