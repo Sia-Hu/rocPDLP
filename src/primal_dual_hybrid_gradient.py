@@ -1,9 +1,12 @@
 import torch
+import time
 from primal_dual_hybrid_gradient_step import adaptive_one_step_pdhg, fixed_one_step_pdhg
 from helpers import spectral_norm_estimate_torch, KKT_error, compute_residuals_and_duality_gap, check_termination
 from enhancements import primal_weight_update
 
-def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_kkt=100_000, tol=1e-4, verbose=True, restart_period=40, precondition=False, primal_update=False, adaptive=False, data_precond=None):
+def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_kkt=100_000, tol=1e-4, verbose=True, restart_period=40, precondition=False, primal_update=False, adaptive=False, data_precond=None, time_limit=3600, time_used=0):
+    
+    algorithm_start_time = time.time()
     
     is_neg_inf = torch.isinf(l) & (l < 0)
     is_pos_inf = torch.isinf(u) & (u > 0)
@@ -36,6 +39,9 @@ def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_kkt=100_000, tol=1e-4, ver
     # Initialize Previous KKT Error
     KKT_first = 0 # The actual KKT error of the very first point doesn't matter since the artificial criteria will always hit anyway
     
+    # Status tracking
+    status = "Unsolved (KKT passes limit exceeded)"  # Default status if we exit due to KKT limit
+    
     # -------------- Outer Loop --------------
     while j < max_kkt:
         t = 0 # Initialize inner iteration counter
@@ -51,6 +57,13 @@ def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_kkt=100_000, tol=1e-4, ver
         
         # --------- Inner Loop ---------
         while j < max_kkt:
+            current_time = time.time()
+            elapsed_time = current_time - algorithm_start_time + time_used
+            if elapsed_time >= time_limit:
+                status = "Unsolved (Time limit exceeded)"
+                if verbose:
+                    print(f"Time limit exceeded")
+                break
             
             k += 1
             x_previous = x.clone() # For checking necessary criteria
@@ -104,7 +117,11 @@ def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_kkt=100_000, tol=1e-4, ver
                     print(f"Artificial restart at iteration {t} using the", "Average iterate." if KKT_current >= KKT_average else "Current iterate.") if verbose else None
                     (x, y) = (x_avg, y_avg) if KKT_current >= KKT_average else (x, y)
                     break
+                
         # ------------- End Inner Loop ------------
+        if status == "Unsolved (Time limit exceeded)":
+            break
+        
         n += 1 # Increase restart loop counter
 
         if primal_update: # Primal weight update
@@ -131,9 +148,11 @@ def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_kkt=100_000, tol=1e-4, ver
 
         # Termination conditions
         if check_termination(primal_residual, dual_residual, duality_gap, prim_obj, adjusted_dual, q_norm, c_norm, tol):
+            status = "Solved"
             if verbose:
               print(f"Converged at iteration {k} restart loop {n}")
             break
+        
     # ------------------- End Outer Loop ------------------------
-    
-    return x, prim_obj.cpu().item(), k, n, j
+    total_time_used = time.time() - algorithm_start_time + time_used
+    return x, prim_obj.cpu().item(), k, n, j, status, total_time_used
