@@ -17,7 +17,8 @@ python -u /path/to/main.py \
   --output_path /path/to/save/results \
   --precondition \
   --primal_weight_update \
-  --adaptive_stepsize
+  --adaptive_stepsize \
+  --max_kkt 100000
 ```
 ## Argument Reference
 
@@ -32,3 +33,4 @@ python -u /path/to/main.py \
 | `--adaptive_stepsize`    | Enable adaptive step sizes (optional).                                       |
 | `--verbose`              | Enable verbose logging (optional).                                           |
 | `--support_sparse`       | Use sparse matrices if supported (optional).                                 |
+| `--max_kkt`              | Maximum number of KKT passes (default: `100000`).                                     |

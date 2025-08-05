@@ -26,6 +26,8 @@ def parse_args():
                         help="Enable verbose output (default: False)")
     parser.add_argument('--support_sparse', action='store_true',
                         help="Support sparse matrices operations(default: False)")
+    parser.add_argument('--max_kkt', type=int, default=100_000,
+                        help="Maximum number of KKT passes (default: 100000)")
     return parser.parse_args()
 
 if __name__ == '__main__':
@@ -52,6 +54,8 @@ if __name__ == '__main__':
     adaptive_stepsize = args.adaptive_stepsize
     verbose=args.verbose
     support_sparse = args.support_sparse
+    max_kkt = args.max_kkt
+    
     results = []
     
     # --- Get all MPS files from the folder ---
@@ -80,7 +84,7 @@ if __name__ == '__main__':
                 if precondition:
                     K, c, q, l, u, dt_precond = ruiz_precondition(c, K, q, l, u, device = device)
                 
-                x, prim_obj, k, n, j = pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_iter=100_000, tol=tol, verbose=verbose, restart_period=40, precondition=precondition,primal_update=primal_weight_update, adaptive=adaptive_stepsize, data_precond=dt_precond)
+                x, prim_obj, k, n, j = pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_kkt=max_kkt, tol=tol, verbose=verbose, restart_period=40, precondition=precondition,primal_update=primal_weight_update, adaptive=adaptive_stepsize, data_precond=dt_precond)
                 
                 print(f"Objective value: {prim_obj:.4f}")
                 

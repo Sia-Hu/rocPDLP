@@ -3,7 +3,7 @@ from primal_dual_hybrid_gradient_step import adaptive_one_step_pdhg, fixed_one_s
 from helpers import spectral_norm_estimate_torch, KKT_error, compute_residuals_and_duality_gap, check_termination
 from enhancements import primal_weight_update
 
-def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_iter=100_000, tol=1e-4, verbose=True, restart_period=40, precondition=False, primal_update=False, adaptive=False, data_precond=None):
+def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_kkt=100_000, tol=1e-4, verbose=True, restart_period=40, precondition=False, primal_update=False, adaptive=False, data_precond=None):
     
     is_neg_inf = torch.isinf(l) & (l < 0)
     is_pos_inf = torch.isinf(u) & (u > 0)
@@ -37,7 +37,7 @@ def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_iter=100_000, tol=1e-4, ve
     KKT_first = 0 # The actual KKT error of the very first point doesn't matter since the artificial criteria will always hit anyway
     
     # -------------- Outer Loop --------------
-    while k < max_iter:
+    while j < max_kkt:
         t = 0 # Initialize inner iteration counter
         
         # Initialize/Reset sums for averaging
@@ -50,7 +50,7 @@ def pdlp_algorithm(K, m_ineq, c, q, l, u, device, max_iter=100_000, tol=1e-4, ve
         y_last_restart = y.clone()
         
         # --------- Inner Loop ---------
-        while k < max_iter:
+        while j < max_kkt:
             
             k += 1
             x_previous = x.clone() # For checking necessary criteria
