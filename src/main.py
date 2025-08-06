@@ -3,7 +3,7 @@ import torch
 import os
 import pandas as pd
 from util import mps_to_standard_form
-from enhancements import ruiz_precondition
+from enhancements import preconditioning
 from primal_dual_hybrid_gradient import pdlp_algorithm
 
 def parse_args():
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         try:
             # PRECONDITION
             if precondition:
-                K, c, q, l, u, dt_precond, time_used= ruiz_precondition(c, K, q, l, u, device = device)
+                K, c, q, l, u, dt_precond, time_used= preconditioning(c, K, q, l, u, device = device)
             else:
                 time_used = 0.0
                 dt_precond = None
