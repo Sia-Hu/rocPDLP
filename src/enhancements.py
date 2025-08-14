@@ -6,31 +6,33 @@ def pock_chambolle_precondition(c, K, q, l, u, D_row = None, D_col = None, devic
     Performs Pock-Chambolle equilibration (scaling) on the standard-form linear program using GPU tensors.
     """  
 
-    # K_s, c_s, q_s, l_s, u_s = K.clone(), c.clone(), q.clone(), l.clone(), u.clone()
+    K_s, c_s, q_s, l_s, u_s = K.clone(), c.clone(), q.clone(), l.clone(), u.clone()
     
-    # if D_row is None:
-    #     D_row = torch.ones((K_s.shape[0], 1), dtype=K.dtype, device=device)
-    # if D_col is None:
-    #     D_col = torch.ones((K_s.shape[1], 1), dtype=K.dtype, device=device)
+    if D_row is None:
+        D_row = torch.ones((K_s.shape[0], 1), dtype=K.dtype, device=device)
+    if D_col is None:
+        D_col = torch.ones((K_s.shape[1], 1), dtype=K.dtype, device=device)
     
     # row_norms = torch.sum(torch.abs(K_s) ** (2.0 - alpha), dim=1, keepdim=True)
     # row_norms = torch.sqrt(row_norms ** (1.0 / (2.0 - alpha)))
-    # row_norms[row_norms < eps] = 1.0
+    row_norms =torch.sqrt(torch.linalg.norm(torch.abs(K_s), ord=2.0 - alpha, dim=1, keepdim=True))
+    row_norms[row_norms < eps] = 1.0
 
     # col_norms = torch.sum(torch.abs(K_s) ** alpha, dim=0, keepdim=True)
     # col_norms = torch.sqrt(col_norms ** (1.0 / alpha))
-    # col_norms[col_norms < eps] = 1.0
+    col_norms = torch.sqrt(torch.linalg.norm(torch.abs(K_s), ord=alpha, dim=0, keepdim=True))
+    col_norms[col_norms < eps] = 1.0
     
-    # D_row /= row_norms
-    # D_col /= col_norms.T
-    # K_s /= row_norms   
-    # K_s /= col_norms   
-    # c_s *= D_col
-    # q_s *= D_row
-    # l_s /= D_col
-    # u_s /= D_col
+    D_row /= row_norms
+    D_col /= col_norms.T
+    K_s /= row_norms   
+    K_s /= col_norms   
+    c_s *= D_col
+    q_s *= D_row
+    l_s /= D_col
+    u_s /= D_col
     
-    # return K_s, c_s, q_s, l_s, u_s, D_col, D_row
+    return K_s, c_s, q_s, l_s, u_s, D_col, D_row
 
 def ruiz_precondition(c, K, q, l, u, device='cpu', max_iter=10, eps=1e-6):
     """
