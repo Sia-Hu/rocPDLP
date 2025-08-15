@@ -23,6 +23,8 @@ def parse_args():
                         help="Enable primal weight update (default: False)")
     parser.add_argument('--adaptive_stepsize', action='store_true',
                         help="Enable adaptive stepsize for PDLP (default: False)")
+    parser.add_argument('--infeasibility_detect', action='store_true',
+                        help="Enable infeasibility detection (default: False)")
     parser.add_argument('--verbose', action='store_true',
                         help="Enable verbose output (default: False)")
     parser.add_argument('--support_sparse', action='store_true',
@@ -55,6 +57,7 @@ if __name__ == '__main__':
     precondition = args.precondition
     primal_weight_update = args.primal_weight_update
     adaptive_stepsize = args.adaptive_stepsize
+    infeasibility_detect = args.infeasibility_detect
     verbose=args.verbose
     support_sparse = args.support_sparse
     max_kkt = args.max_kkt
@@ -69,6 +72,7 @@ if __name__ == '__main__':
     print(f"Preconditioning: {precondition}")
     print(f"Primal weight update: {primal_weight_update}")
     print(f"Adaptive stepsize: {adaptive_stepsize}")
+    print(f"Infeasibility detection: {infeasibility_detect}")
     
     results = []
     
@@ -107,6 +111,7 @@ if __name__ == '__main__':
                 max_kkt=max_kkt, tol=tol, verbose=verbose, restart_period=40, 
                 precondition=precondition, primal_update=primal_weight_update, 
                 adaptive=adaptive_stepsize, data_precond=dt_precond, 
+                infeasibility_detect=infeasibility_detect,
                 time_limit=time_limit, time_used=time_used
             )
             print(f"Solver uses {total_time:.4f} seconds.")
